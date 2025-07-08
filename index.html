@@ -3,43 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Tic Tac Toe</title>
+  <title>TicTacO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
   <style>
     * {
       box-sizing: border-box;
     }
 
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Poppins', sans-serif;
       text-align: center;
       margin: 0;
       padding: 0;
-      background: radial-gradient(circle at top left, #ffe6f0 0%, transparent 40%),
-                  radial-gradient(circle at top right, #e6f0ff 0%, transparent 40%),
-                  radial-gradient(circle at bottom left, #f3e6ff 0%, transparent 40%),
-                  white;
+      background: linear-gradient(to bottom right, #fffdfd, #f7f8fa);
     }
 
     #loading {
       position: fixed;
       top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
+      width: 100vw; height: 100vh;
       background: white;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 9999;
-      animation: fadeOut 1s ease 2s forwards;
     }
 
     .loader {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #a29bfe;
+      border: 6px solid #eee;
+      border-top: 6px solid #6c5ce7;
       border-radius: 50%;
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       animation: spin 1s linear infinite;
+      margin-top: 20px;
+    }
+
+    .logo-loading {
+      font-size: 42px;
+      font-weight: 700;
+    }
+
+    .logo-loading .x { color: #ff4b2b; }
+    .logo-loading .text { color: #222; }
+    .logo-loading .o { color: #2193b0; }
+
+    .welcome-text {
+      font-size: 22px;
+      font-weight: 500;
+      color: #555;
+      margin-top: 10px;
+      animation: fadeInText 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes fadeInText {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
     }
 
     @keyframes spin {
@@ -47,183 +67,243 @@
       100% { transform: rotate(360deg); }
     }
 
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        visibility: hidden;
-      }
+    .mode-select {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 40px 50px;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      text-align: center;
     }
 
-    h1 {
-      color: #444;
-      margin-top: 20px;
+    .mode-select h3 {
+      margin-bottom: 20px;
+      font-size: 22px;
     }
+
+    .mode-select button {
+      margin: 8px;
+      padding: 12px 26px;
+      font-size: 18px;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .difficulty-container {
+      margin-top: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .difficulty-container label {
+      font-size: 16px;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .difficulty-container input {
+      width: 200px;
+    }
+
+    .game-container {
+      display: none;
+    }
+
+    .logo {
+      font-size: 42px;
+      font-weight: 700;
+      margin-top: 30px;
+    }
+
+    .logo .x { color: #ff4b2b; }
+    .logo .text { color: #222; }
+    .logo .o { color: #2193b0; }
 
     #board {
       display: grid;
       grid-template-columns: repeat(3, 100px);
-      gap: 5px;
-      margin: 20px auto;
-      width: 310px;
+      gap: 10px;
+      margin: 30px auto;
+      width: 320px;
       position: relative;
     }
 
     .cell {
       width: 100px;
       height: 100px;
-      background: #fafafa;
+      background: #fefefe;
       font-size: 48px;
       font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
       border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      position: relative;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+      cursor: pointer;
+      transition: 0.3s ease;
     }
 
-    .cell span {
-      display: inline-block;
-      animation: none;
+    .cell.x span, .cell.o span {
+      animation: bounce 0.3s ease;
+    }
+
+    @keyframes bounce {
+      0% { transform: scale(0.5); opacity: 0.3; }
+      100% { transform: scale(1); opacity: 1; }
     }
 
     .cell.x span {
-      background: linear-gradient(to right, #ff4b2b, #ff416c); /* Dark vibrant pink-red */
+      background: linear-gradient(to right, #ff4b2b, #ff416c);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: xAnim 0.5s ease;
     }
 
     .cell.o span {
-      background: linear-gradient(to right, #2193b0, #6dd5ed); /* Dark vibrant blue-cyan */
+      background: linear-gradient(to right, #2193b0, #6dd5ed);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: oAnim 0.5s ease;
-    }
-
-    @keyframes xAnim {
-      0% { transform: scale(0); opacity: 0; }
-      60% { transform: scale(1.3); opacity: 1; }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes oAnim {
-      0% { transform: rotate(-180deg) scale(0); opacity: 0; }
-      60% { transform: rotate(20deg) scale(1.3); opacity: 1; }
-      100% { transform: rotate(0deg) scale(1); }
     }
 
     #status {
       font-size: 24px;
-      margin: 20px 0;
-      color: #333;
+      margin-bottom: 20px;
+      color: #444;
     }
 
     button {
       padding: 10px 20px;
       font-size: 16px;
-      background-color: #a29bfe;
+      background: linear-gradient(to right, #6a11cb, #2575fc);
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s ease;
+      margin-top: 10px;
     }
 
     button:hover {
-      background-color: #6c5ce7;
-    }
-
-    .line {
-      position: absolute;
-      height: 4px;
-      background: #ff9999;
-      border-radius: 5px;
-      z-index: 2;
-      transform-origin: left center;
-      animation: growLine 0.4s ease-out forwards;
-      width: 0;
-    }
-
-    @keyframes growLine {
-      to {
-        width: var(--line-width);
-      }
+      opacity: 0.85;
+      transform: scale(1.05);
     }
 
     .popup {
       position: fixed;
       top: 50%;
       left: 50%;
-      transform: translate(-50%, -50%) scale(0.7);
-      background: white;
+      transform: translate(-50%, -50%);
+      background: #ffffffdd;
       padding: 20px 30px;
       border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
       display: none;
-      z-index: 999;
+      z-index: 99;
     }
 
     .popup.show {
       display: block;
-      animation: popupShow 0.5s ease;
     }
 
-    @keyframes popupShow {
-      from { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
-      to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
-
   <div id="loading">
+    <div class="logo-loading">
+      <span class="x">X</span><span class="text">TicTac</span><span class="o">O</span>
+    </div>
+    <div class="welcome-text">Welcome to Tic Tac Teo</div>
     <div class="loader"></div>
   </div>
 
-  <h1>Tic Tac Toe</h1>
-  <div id="board"></div>
-  <div id="status">Player X's turn</div>
-  <button onclick="resetGame()">Reset Game</button>
+  <div class="mode-select" id="modeSelect">
+    <h3>Select Mode</h3>
+    <button onclick="selectMode('player')">2 Player</button>
+    <button onclick="showComputerOptions()">Computer</button>
+    <div class="difficulty-container" id="difficultyContainer">
+      <label for="difficulty">Difficulty: <span id="diffLabel">Medium</span></label>
+      <input type="range" min="1" max="3" value="2" id="difficulty" oninput="updateDifficultyLabel(this.value)">
+      <button style="margin-top: 15px;" onclick="selectMode('computer')">Play</button>
+    </div>
+  </div>
+
+  <div class="game-container" id="gameContainer">
+    <div class="logo"><span class="x">X</span><span class="text">TicTac</span><span class="o">O</span></div>
+    <div id="board"></div>
+    <div id="status">Player X's turn</div>
+    <button onclick="resetGame()">Reset Game</button>
+  </div>
 
   <div class="popup" id="popup">
     <h2 id="popupText"></h2>
     <button onclick="resetGame()">Play Again</button>
   </div>
 
+  <footer>Made with ❤️ by Dhiraj</footer>
+
   <script>
+    const loading = document.getElementById('loading');
+    setTimeout(() => loading.style.display = 'none', 2000);
+
     const board = document.getElementById("board");
     const statusText = document.getElementById("status");
     const popup = document.getElementById("popup");
     const popupText = document.getElementById("popupText");
+    const modeSelect = document.getElementById("modeSelect");
+    const gameContainer = document.getElementById("gameContainer");
+    const difficultyContainer = document.getElementById("difficultyContainer");
+    const diffLabel = document.getElementById("diffLabel");
 
     let currentPlayer = "X";
-    let gameActive = true;
+    let gameActive = false;
     let cells = ["", "", "", "", "", "", "", "", ""];
+    let vsComputer = false;
+    let difficulty = 2;
 
     const winPatterns = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
+      [0, 1, 2], [3, 4, 5], [6, 7, 8],
+      [0, 3, 6], [1, 4, 7], [2, 5, 8],
+      [0, 4, 8], [2, 4, 6],
     ];
 
+    function showComputerOptions() {
+      difficultyContainer.style.display = 'flex';
+    }
+
+    function updateDifficultyLabel(val) {
+      difficulty = parseInt(val);
+      diffLabel.innerText = ["Easy", "Medium", "Extreme"][difficulty - 1];
+    }
+
+    function selectMode(mode) {
+      vsComputer = mode === 'computer';
+      gameActive = true;
+      modeSelect.style.display = 'none';
+      gameContainer.style.display = 'block';
+      resetGame();
+    }
+
     function createBoard() {
-      board.innerHTML = "";
+      board.innerHTML = '';
       cells.forEach((val, i) => {
         const cell = document.createElement("div");
         cell.classList.add("cell");
         cell.setAttribute("data-index", i);
-        if (val === "X") {
-          cell.classList.add("x");
-          cell.innerHTML = "<span>X</span>";
-        } else if (val === "O") {
-          cell.classList.add("o");
-          cell.innerHTML = "<span>O</span>";
+        if (val) {
+          cell.classList.add(val.toLowerCase());
+          cell.innerHTML = `<span>${val}</span>`;
         }
         cell.addEventListener("click", handleClick);
         board.appendChild(cell);
@@ -233,60 +313,64 @@
     function handleClick(e) {
       const index = e.target.closest(".cell").getAttribute("data-index");
       if (!gameActive || cells[index]) return;
-
       cells[index] = currentPlayer;
       createBoard();
-      checkWinner();
+      if (checkWinner()) return;
+      currentPlayer = currentPlayer === "X" ? "O" : "X";
+      statusText.innerText = `Player ${currentPlayer}'s turn`;
+      if (vsComputer && currentPlayer === "O") setTimeout(computerMove, 500);
+    }
+
+    function computerMove() {
+      let move;
+      if (difficulty === 1) {
+        move = getRandomMove();
+      } else if (difficulty === 2) {
+        move = getWinningMove("O") || getWinningMove("X") || getRandomMove();
+      } else {
+        move = getWinningMove("O") || getWinningMove("X") || getRandomMove(); // Can replace with minimax
+      }
+
+      if (move != null) {
+        cells[move] = "O";
+        createBoard();
+        if (checkWinner()) return;
+        currentPlayer = "X";
+        statusText.innerText = `Player ${currentPlayer}'s turn`;
+      }
+    }
+
+    function getWinningMove(player) {
+      for (const [a, b, c] of winPatterns) {
+        const line = [cells[a], cells[b], cells[c]];
+        const emptyIndex = [a, b, c].find((i, idx) => line[idx] === "");
+        const others = [a, b, c].filter((i, idx) => line[idx] === player);
+        if (others.length === 2 && emptyIndex !== undefined && cells[emptyIndex] === "") {
+          return emptyIndex;
+        }
+      }
+      return null;
+    }
+
+    function getRandomMove() {
+      const empty = cells.map((val, i) => val === "" ? i : null).filter(i => i != null);
+      return empty.length ? empty[Math.floor(Math.random() * empty.length)] : null;
     }
 
     function checkWinner() {
-      for (const pattern of winPatterns) {
-        const [a, b, c] = pattern;
+      for (const [a, b, c] of winPatterns) {
         if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
-          drawLine(a, b, c);
-          showPopup(`🎉 Player ${currentPlayer} Wins!`);
+          showPopup(`🎉 Player ${cells[a]} Wins!`);
           gameActive = false;
-          return;
+          return true;
         }
       }
-
       if (!cells.includes("")) {
         showPopup("😐 It's a Draw!");
         gameActive = false;
-        return;
+        return true;
       }
-
-      currentPlayer = currentPlayer === "X" ? "O" : "X";
-      statusText.innerText = `Player ${currentPlayer}'s turn`;
-    }
-
-    function getLinePosition(a, b, c) {
-      const rects = [...board.children].map(cell => cell.getBoundingClientRect());
-      const from = rects[a];
-      const to = rects[c];
-      const dx = to.left - from.left;
-      const dy = to.top - from.top;
-      const length = Math.sqrt(dx*dx + dy*dy);
-      const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-
-      const boardRect = board.getBoundingClientRect();
-      return {
-        top: from.top - boardRect.top + 50 + "px",
-        left: from.left - boardRect.left + 50 + "px",
-        width: length + "px",
-        rotate: angle + "deg"
-      };
-    }
-
-    function drawLine(a, b, c) {
-      const pos = getLinePosition(a, b, c);
-      const line = document.createElement("div");
-      line.className = "line";
-      line.style.top = pos.top;
-      line.style.left = pos.left;
-      line.style.transform = `rotate(${pos.rotate})`;
-      line.style.setProperty("--line-width", pos.width);
-      board.appendChild(line);
+      return false;
     }
 
     function showPopup(msg) {
@@ -302,8 +386,6 @@
       statusText.innerText = "Player X's turn";
       createBoard();
     }
-
-    createBoard();
   </script>
 </body>
 </html>
